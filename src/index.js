@@ -3,6 +3,7 @@ let language = 'eng';
 const textArea = document.createElement('textarea');
 textArea.className = 'textarea';
 document.body.prepend(textArea);
+textArea.value = '';
 
 const keyboard = document.createElement('div');
 keyboard.className = 'keyboard';
@@ -17,7 +18,7 @@ const keyboardItems = [
     Backquote: '`',
     Digit1: '1',
     Digit2: '2',
-    Digit3: '3', 
+    Digit3: '3',
     Digit4: '4',
     Digit5: '5',
     Digit6: '6',
@@ -34,7 +35,7 @@ const keyboardItems = [
     KeyQ: 'q',
     KeyW: 'w',
     KeyE: 'e',
-    KeyR: 'r', 
+    KeyR: 'r',
     KeyT: 't',
     KeyY: 'y',
     KeyU: 'u',
@@ -49,7 +50,7 @@ const keyboardItems = [
   {
     CapsLock: 'CapsLk',
     KeyA: 'a',
-    KeyS: 's', 
+    KeyS: 's',
     KeyD: 'd',
     KeyF: 'f',
     KeyG: 'g',
@@ -74,7 +75,7 @@ const keyboardItems = [
     Period: '.',
     Slash: '/',
     ArrowUp: '↑',
-    ShiftRight: 'Shift'
+    ShiftRight: 'Shift',
   },
   {
     ControlLeft: 'Ctrl',
@@ -95,7 +96,9 @@ const createRepeatElems = () => {
     const elem = document.createElement('div');
     elem.classList.add('keyboard-row');
     keyboard.append(elem);
+
     const rowItemsObjValues = Object.entries(keyboardItems[index]);
+
     for (let i = 0; i < rowItemsObjValues.length; i += 1) {
       const keyboardItem = document.createElement('div');
       keyboardItem.classList.add('key');
@@ -111,17 +114,50 @@ const createRepeatElems = () => {
 createRepeatElems();
 
 const keyboardKeys = document.querySelectorAll('.key');
+const customClick = new Event('click');
+const customMouseEnter = new Event('mouseover');
+const customMouseLeave = new Event('mouseleave');
 
 keyboardKeys.forEach((key) => {
   document.addEventListener('keydown', (event) => {
+    event.preventDefault();
     if (event.code === key.dataset.keyCode) {
-      key.classList.add('active');
+      key.dispatchEvent(customClick);
+      key.dispatchEvent(customMouseEnter);
     }
   });
 
   document.addEventListener('keyup', (event) => {
     if (event.code === key.dataset.keyCode) {
-      key.classList.remove('active');
+      key.dispatchEvent(customMouseLeave);
     }
+  });
+});
+
+keyboardKeys.forEach((key) => {
+  key.addEventListener('mouseover', (event) => {
+    event.target.classList.add('active');
+  });
+
+  key.addEventListener('mouseleave', (event) => {
+    event.target.classList.remove('active');
+  });
+});
+
+const addClassforOperationKeys = () => {
+  keyboardKeys.forEach((key) => {
+    if (key.textContent.length > 1) {
+      key.classList.add('operation-key');
+    } if (key.textContent.charCodeAt() > 8591 || key.textContent.charCodeAt() < 8596) {
+      key.classList.add('operation-key');
+    }
+  });
+};
+
+addClassforOperationKeys();
+
+keyboardKeys.forEach((key) => {
+  key.addEventListener('click', (event) => {
+    textArea.value += event.target.textContent;
   });
 });
