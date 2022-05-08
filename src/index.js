@@ -1,6 +1,4 @@
 let capsLockCondition = false;
-let shiftPressCondition = false;
-let capsAndShiftcondition = false;
 let language = 'english';
 
 const textArea = document.createElement('textarea');
@@ -242,35 +240,15 @@ const shiftKeys = [shiftLeft, shiftRight];
 
 const addHiddenClass = (add) => {
   add.forEach((key) => {
-    key.classList.toggle('hidden');
+    key.classList.add('hidden');
   });
 };
 
 const removeHiddenClass = (remove) => {
   remove.forEach((key) => {
-    key.classList.toggle('hidden');
+    key.classList.remove('hidden');
   });
 };
-
-
-
-document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey && (event.code === 'AltLeft' || event.code === 'AltRight')) {
-    if (language === 'english') {
-      language = 'russian';
-      addHiddenClass(englishKeys);
-      removeHiddenClass(russianKeys);
-      return language;
-    } if (language === 'russian') {
-      language = 'english';
-      addHiddenClass(russianKeys);
-      removeHiddenClass(englishKeys);
-      return language;
-    }
-  }
-  return language;
-});
-
 
 capsLock.addEventListener('click', (event) => {
   if (capsLockCondition === false) {
@@ -317,18 +295,79 @@ shiftKeys.forEach((key) => {
 
 contentKeys.forEach((key) => {
   key.addEventListener('click', (event) => {
-    textArea.setRangeText(event.target.innerText, textArea.selectionStart, textArea.selectionEnd, 'end');
+    if (textArea.selectionStart === textArea.selectionEnd) {
+      textArea.setRangeText(event.target.innerText, textArea.selectionStart, textArea.selectionEnd, 'end');
+    }
   });
 });
 
 space.addEventListener('click', () => {
-  textArea.setRangeText(' ', textArea.selectionStart, textArea.selectionEnd, 'end');
+  if (textArea.selectionStart === textArea.selectionEnd) {
+    textArea.setRangeText(' ', textArea.selectionStart, textArea.selectionEnd, 'end');
+  }
 });
 
 backspace.addEventListener('click', () => {
-  textArea.value = textArea.value.slice(0, textArea.value.length - 1);
+  const position = textArea.selectionStart - 1 || textArea.value.length;
+  textArea.value = textArea.value.slice(0, textArea.selectionStart - 1)
+  + textArea.value.slice(textArea.selectionStart, textArea.value.length);
+  textArea.selectionStart = position;
+  textArea.selectionEnd = position;
 });
 
+tab.addEventListener('click', () => {
+  textArea.setRangeText('\t', textArea.selectionStart, textArea.selectionEnd, 'end');
+});
 
+textArea.focus();
 
+enter.addEventListener('click', () => {
+  textArea.setRangeText('\n', textArea.selectionStart, textArea.selectionEnd, 'end');
+});
 
+dlt.addEventListener('click', () => {
+  const position = textArea.selectionStart;
+  textArea.value = textArea.value.slice(0, textArea.selectionStart)
+  + textArea.value.slice(textArea.selectionStart + 1, textArea.value.length);
+  textArea.selectionStart = position;
+  textArea.selectionEnd = position;
+});
+
+const setLocalStorage = () => {
+  localStorage.setItem('language', language);
+};
+
+window.addEventListener('beforeunload', setLocalStorage);
+
+const getLocalStorage = () => {
+  if (localStorage.getItem('language') === 'english') {
+    addHiddenClass(russianKeys);
+    removeHiddenClass(englishKeys);
+    language = 'english';
+  }
+  if (localStorage.getItem('language') === 'russian') {
+    addHiddenClass(englishKeys);
+    removeHiddenClass(russianKeys);
+    language = 'russian';
+  }
+  return language;
+};
+
+window.addEventListener('load', getLocalStorage);
+
+document.addEventListener('keydown', (event) => {
+  if (event.ctrlKey && (event.code === 'AltLeft' || event.code === 'AltRight')) {
+    if (language === 'english') {
+      addHiddenClass(englishKeys);
+      removeHiddenClass(russianKeys);
+      language = 'russian';
+      return language;
+    } if (language === 'russian') {
+      addHiddenClass(russianKeys);
+      removeHiddenClass(englishKeys);
+      language = 'english';
+      return language;
+    }
+  }
+  return language;
+});
