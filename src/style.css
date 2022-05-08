@@ -33,3 +33,15 @@ body {
 .active {
     background-color: aliceblue;
 }
+
+.english .active {
+    background-color: transparent;
+}
+
+.hidden {
+    display: none;
+}
+
+.pressed {
+    background-color: aliceblue;
+}
