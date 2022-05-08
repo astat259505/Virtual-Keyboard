@@ -1,4 +1,6 @@
 let capsLockCondition = false;
+let shiftPressCondition = false;
+let capsAndShiftcondition = false;
 let language = 'english';
 
 const textArea = document.createElement('textarea');
@@ -96,8 +98,6 @@ const english = ['`1234567890-=qwertyuiop[]\\asdfghjkl;\'zxcvbnm,./', '`12345678
 const russian = ['ё1234567890-=йцукенгшщзхъ\\фывапролджэячсмитьбю.', 'Ё1234567890-=ЙЦУКЕНГШЩЗХЪ\\ФЫВАПРОЛДЖЭЯЧСМИТЬБЮ.',
   'Ё!"№;%:?*()_+ЙЦУКЕНГШЩЗХЪ/ФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,', 'ё!"№;%:?*()_+йцукенгшщзхъ/фывапролджэячсмитьбю,'];
 
-const [normalEng, capsLockPressEng, shiftPressEng, capsLockAndShiftEng] = english;
-
 const createRepeatElems = () => {
   let index = 0;
 
@@ -132,34 +132,8 @@ const customMouseEnter = new Event('mouseover');
 const customMouseLeave = new Event('mouseleave');
 const customMouseDown = new Event('mousedown');
 const customMouseUp = new Event('mouseup');
-
-keyboardKeys.forEach((key) => {
-  document.addEventListener('keydown', (event) => {
-    event.preventDefault();
-    if (event.code === key.dataset.keyCode) {
-      key.dispatchEvent(customClick);
-      key.dispatchEvent(customMouseEnter);
-      key.dispatchEvent(customMouseDown);
-    }
-  });
-
-  document.addEventListener('keyup', (event) => {
-    if (event.code === key.dataset.keyCode) {
-      key.dispatchEvent(customMouseLeave);
-      key.dispatchEvent(customMouseUp);
-    }
-  });
-});
-
-keyboardKeys.forEach((key) => {
-  key.addEventListener('mouseover', (event) => {
-    event.target.classList.add('active');
-  });
-
-  key.addEventListener('mouseleave', (event) => {
-    event.target.classList.remove('active');
-  });
-});
+const customKeyDown = new Event('keydown', { keyCode: '50' });
+const customKeyUp = new Event('keyup', { keyCode: '50' });
 
 const addClassforDiffrentKeys = () => {
   keyboardKeys.forEach((key) => {
@@ -173,55 +147,84 @@ const addClassforDiffrentKeys = () => {
 
 addClassforDiffrentKeys();
 
-keyboardKeys.forEach((key) => {
-  key.addEventListener('click', (event) => {
-    if (!event.target.classList.contains('operation-key')) {
-      textArea.value += event.target.textContent;
-    }
-  });
-});
-
-
-
 const operationKeys = document.querySelectorAll('.operation-key');
 const contentKeys = document.querySelectorAll('.content-key');
 
 const [backspace, tab, dlt, capsLock, enter, shiftLeft, arrowUp, shiftRight, controlLeft, altLeft, 
   space, altRight, arrowLeft, arrowDown, arrowRight, controlRight] = operationKeys;
 
+keyboardKeys.forEach((key) => {
+  document.addEventListener('keydown', (event) => {
+    event.preventDefault();
+    if (event.code === key.dataset.keyCode) {
+      if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+        key.dispatchEvent(customMouseDown);
+        document.dispatchEvent(customKeyDown);
+        document.dispatchEvent(customKeyUp);
+      } else {
+        key.dispatchEvent(customClick);
+        key.dispatchEvent(customMouseEnter);
+      }
+    }
+});
+});
+
+keyboardKeys.forEach((key) => {
+  document.addEventListener('keyup', (event) => {
+    if (event.code === key.dataset.keyCode) {
+      if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+        key.dispatchEvent(customMouseUp);
+      } else {
+      key.dispatchEvent(customMouseLeave);
+    }
+  }
+})
+})
+
+
+keyboardKeys.forEach((key) => {
+  key.addEventListener('mouseover', (event) => {
+    event.target.classList.add('active');
+  });
+
+  key.addEventListener('mouseleave', (event) => {
+    event.target.classList.remove('active');
+  });
+});
+
 
 const createLangLayout = (lang, arr) => {
   for (let i = 0; i < contentKeys.length; i += 1) {
-    const language = document.createElement('span');
-    language.classList.add(`${lang}`);
+    const languageNode = document.createElement('span');
+    languageNode.classList.add(`${lang}`);
     if (lang === 'russian') {
-      language.classList.add('hidden')
+      languageNode.classList.add('hidden')
     }
-    contentKeys[i].append(language);
+    contentKeys[i].append(languageNode);
 
     const normalLayout = document.createElement('span');
     normalLayout.classList.add('normal');
     normalLayout.textContent = `${arr[0][i]}`;
-    language.append(normalLayout);
+    languageNode.append(normalLayout);
 
     const capsLockLayout = document.createElement('span');
     capsLockLayout.classList.add('capslock-press');
     capsLockLayout.classList.add('hidden');
     capsLockLayout.textContent = `${arr[1][i]}`;
-    language.append(capsLockLayout);
+    languageNode.append(capsLockLayout);
 
     const shiftLayout = document.createElement('span');
     shiftLayout.classList.add('shift-press');
     shiftLayout.classList.add('hidden');
     shiftLayout.textContent = `${arr[2][i]}`;
-    language.append(shiftLayout);
+    languageNode.append(shiftLayout);
 
     const capsLockAndShiftLayout = document.createElement('span');
     capsLockAndShiftLayout.classList.add('caps-shift-press');
     capsLockAndShiftLayout.classList.add('hidden');
     capsLockAndShiftLayout.textContent = `${arr[3][i]}`;
-    language.append(capsLockAndShiftLayout);
-  };
+    languageNode.append(capsLockAndShiftLayout);
+  }
 };
 
 
@@ -298,6 +301,7 @@ shiftKeys.forEach((key) => {
   });
 });
 
+
 shiftKeys.forEach((key) => {
   key.addEventListener('mouseup', () => {
     if (!capsLock.classList.contains('pressed')) {
@@ -309,3 +313,22 @@ shiftKeys.forEach((key) => {
     }
   });
 });
+;
+
+contentKeys.forEach((key) => {
+  key.addEventListener('click', (event) => {
+    textArea.setRangeText(event.target.innerText, textArea.selectionStart, textArea.selectionEnd, 'end');
+  });
+});
+
+space.addEventListener('click', () => {
+  textArea.setRangeText(' ', textArea.selectionStart, textArea.selectionEnd, 'end');
+});
+
+backspace.addEventListener('click', () => {
+  textArea.value = textArea.value.slice(0, textArea.value.length - 1);
+});
+
+
+
+
