@@ -1,0 +1,48 @@
+body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.textarea {
+    width: 700px;
+    height: 200px;
+    
+}
+
+.keyboard {
+    width: 700px;
+    height: 300px;
+    background-color: grey;
+}
+
+.keyboard-row {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    gap: 10px;
+}
+
+.key {
+    width: 40px;
+    height: 40px;
+    background-color: black;
+    color: yellow;
+}
+
+.active {
+    background-color: aliceblue;
+}
+
+.english .active {
+    background-color: transparent;
+}
+
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+.pressed {
+    background-color: aliceblue;
+}
