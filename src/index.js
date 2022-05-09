@@ -154,13 +154,13 @@ const [backspace, tab, dlt, capsLock, enter, shiftLeft, arrowUp, shiftRight, , ,
   space, , arrowLeft, arrowDown, arrowRight] = operationKeys;
 
 keyboardKeys.forEach((key) => {
-  document.addEventListener('keydown', (event) => {
+  window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (event.code === key.dataset.keyCode) {
       if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
         key.dispatchEvent(customMouseDown);
-        document.dispatchEvent(customKeyDown);
-        document.dispatchEvent(customKeyUp);
+        window.dispatchEvent(customKeyDown);
+        window.dispatchEvent(customKeyUp);
         key.dispatchEvent(customMouseEnter);
       } else {
         key.dispatchEvent(customMouseEnter);
@@ -172,7 +172,7 @@ keyboardKeys.forEach((key) => {
 });
 
 keyboardKeys.forEach((key) => {
-  document.addEventListener('keyup', (event) => {
+  window.addEventListener('keyup', (event) => {
     if (event.code === key.dataset.keyCode) {
       if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
         key.dispatchEvent(customMouseUp);
@@ -418,7 +418,7 @@ const getLocalStorage = () => {
 
 window.addEventListener('load', getLocalStorage);
 
-document.addEventListener('keydown', (event) => {
+window.addEventListener('keydown', (event) => {
   if (event.ctrlKey && (event.code === 'AltLeft' || event.code === 'AltRight')) {
     if (language === 'english') {
       addHiddenClass(englishKeys);
