@@ -46,7 +46,7 @@ const keyboardItems = [
     BracketLeft: '[',
     BracketRight: ']',
     Backslash: '\\',
-    Delete: 'Delete',
+    Delete: 'Del',
   },
   {
     CapsLock: 'CapsLk',
@@ -159,9 +159,11 @@ keyboardKeys.forEach((key) => {
         key.dispatchEvent(customMouseDown);
         document.dispatchEvent(customKeyDown);
         document.dispatchEvent(customKeyUp);
-      } else {
-        key.dispatchEvent(customClick);
         key.dispatchEvent(customMouseEnter);
+      } else {
+        key.dispatchEvent(customMouseEnter);
+        key.dispatchEvent(customMouseDown);
+        key.dispatchEvent(customClick);
       }
     }
 });
@@ -172,21 +174,23 @@ keyboardKeys.forEach((key) => {
     if (event.code === key.dataset.keyCode) {
       if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
         key.dispatchEvent(customMouseUp);
+        key.dispatchEvent(customMouseLeave);
       } else {
-      key.dispatchEvent(customMouseLeave);
+        key.dispatchEvent(customMouseLeave);
+        key.dispatchEvent(customMouseUp);
+      }
     }
-  }
-})
-})
+  })
+});
 
 
 keyboardKeys.forEach((key) => {
   key.addEventListener('mouseover', (event) => {
-    event.target.classList.add('active');
+    event.currentTarget.classList.add('active');
   });
 
   key.addEventListener('mouseleave', (event) => {
-    event.target.classList.remove('active');
+    event.currentTarget.classList.remove('active');
   });
 });
 
@@ -370,4 +374,16 @@ document.addEventListener('keydown', (event) => {
     }
   }
   return language;
+});
+
+keyboardKeys.forEach((key) => {
+  key.addEventListener('mousedown', (event) => {
+    event.currentTarget.classList.add('clicked');
+  });
+});
+
+keyboardKeys.forEach((key) => {
+  key.addEventListener('mouseup', (event) => {
+    event.currentTarget.classList.remove('clicked');
+  });
 });
