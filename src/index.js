@@ -1,5 +1,6 @@
 let capsLockCondition = false;
 let language = 'english';
+const itemsInTextareaString = 68;
 
 const textArea = document.createElement('textarea');
 textArea.className = 'textarea';
@@ -13,6 +14,7 @@ textArea.after(keyboard);
 const comments = document.createElement('div');
 comments.className = 'comments';
 keyboard.after(comments);
+comments.innerHTML = '<p>Клавиатура создана в операционной системе Windows</p><p>Комбинация для переключения языка Ctrl + Alt</p>';
 
 const keyboardItems = [
   {
@@ -148,8 +150,8 @@ addClassforDiffrentKeys();
 const operationKeys = document.querySelectorAll('.operation-key');
 const contentKeys = document.querySelectorAll('.content-key');
 
-const [backspace, tab, dlt, capsLock, enter, shiftLeft, arrowUp, shiftRight, controlLeft, altLeft, 
-  space, altRight, arrowLeft, arrowDown, arrowRight, controlRight] = operationKeys;
+const [backspace, tab, dlt, capsLock, enter, shiftLeft, arrowUp, shiftRight, , ,
+  space, , arrowLeft, arrowDown, arrowRight] = operationKeys;
 
 keyboardKeys.forEach((key) => {
   document.addEventListener('keydown', (event) => {
@@ -166,7 +168,7 @@ keyboardKeys.forEach((key) => {
         key.dispatchEvent(customClick);
       }
     }
-});
+  });
 });
 
 keyboardKeys.forEach((key) => {
@@ -180,9 +182,8 @@ keyboardKeys.forEach((key) => {
         key.dispatchEvent(customMouseUp);
       }
     }
-  })
+  });
 });
-
 
 keyboardKeys.forEach((key) => {
   key.addEventListener('mouseover', (event) => {
@@ -194,13 +195,12 @@ keyboardKeys.forEach((key) => {
   });
 });
 
-
 const createLangLayout = (lang, arr) => {
   for (let i = 0; i < contentKeys.length; i += 1) {
     const languageNode = document.createElement('span');
     languageNode.classList.add(`${lang}`);
     if (lang === 'russian') {
-      languageNode.classList.add('hidden')
+      languageNode.classList.add('hidden');
     }
     contentKeys[i].append(languageNode);
 
@@ -228,7 +228,6 @@ const createLangLayout = (lang, arr) => {
     languageNode.append(capsLockAndShiftLayout);
   }
 };
-
 
 createLangLayout('english', english);
 createLangLayout('russian', russian);
@@ -259,15 +258,17 @@ capsLock.addEventListener('click', (event) => {
     addHiddenClass(defaultKeys);
     removeHiddenClass(capsLockPressKeys);
     event.target.classList.add('pressed');
+    event.target.classList.add('clicked');
     capsLockCondition = true;
     return capsLockCondition;
   } if (capsLockCondition === true) {
     addHiddenClass(capsLockPressKeys);
     removeHiddenClass(defaultKeys);
     event.target.classList.remove('pressed');
+    event.target.classList.remove('clicked');
     capsLockCondition = false;
     return capsLockCondition;
-}
+  }
   return capsLockCondition;
 });
 
@@ -283,7 +284,6 @@ shiftKeys.forEach((key) => {
   });
 });
 
-
 shiftKeys.forEach((key) => {
   key.addEventListener('mouseup', () => {
     if (!capsLock.classList.contains('pressed')) {
@@ -295,12 +295,14 @@ shiftKeys.forEach((key) => {
     }
   });
 });
-;
 
 contentKeys.forEach((key) => {
   key.addEventListener('click', (event) => {
     if (textArea.selectionStart === textArea.selectionEnd) {
-      textArea.setRangeText(event.target.innerText, textArea.selectionStart, textArea.selectionEnd, 'end');
+      textArea.setRangeText(event.target.innerText, textArea.selectionStart, textArea.selectionEnd, 'start');
+      textArea.selectionStart += 1;
+      textArea.selectionStart = textArea.selectionEnd;
+      textArea.focus();
     }
   });
 });
@@ -308,25 +310,48 @@ contentKeys.forEach((key) => {
 space.addEventListener('click', () => {
   if (textArea.selectionStart === textArea.selectionEnd) {
     textArea.setRangeText(' ', textArea.selectionStart, textArea.selectionEnd, 'end');
+    textArea.selectionStart += 1;
+    textArea.selectionStart = textArea.selectionEnd;
+    textArea.focus();
   }
 });
 
 backspace.addEventListener('click', () => {
-  const position = textArea.selectionStart - 1 || textArea.value.length;
-  textArea.value = textArea.value.slice(0, textArea.selectionStart - 1)
+  let position;
+  if (textArea.selectionStart === textArea.selectionEnd) {
+    if (textArea.selectionStart > 1) {
+      position = textArea.selectionStart - 1 || textArea.value.length;
+      textArea.value = textArea.value.slice(0, textArea.selectionStart - 1)
   + textArea.value.slice(textArea.selectionStart, textArea.value.length);
+    } if (textArea.selectionStart === 1) {
+      textArea.value = textArea.value.slice(1, textArea.value.length);
+      position = 0;
+    }
+  } if (textArea.selectionStart !== textArea.selectionEnd) {
+    position = textArea.selectionStart;
+    textArea.value = textArea.value.slice(0, textArea.selectionStart)
+     + textArea.value.slice(textArea.selectionEnd, textArea.value.length);
+  }
+
   textArea.selectionStart = position;
   textArea.selectionEnd = position;
+  textArea.focus();
 });
 
 tab.addEventListener('click', () => {
   textArea.setRangeText('\t', textArea.selectionStart, textArea.selectionEnd, 'end');
+  textArea.selectionStart += '\t';
+  textArea.selectionStart = textArea.selectionEnd;
+  textArea.focus();
 });
 
 textArea.focus();
 
 enter.addEventListener('click', () => {
   textArea.setRangeText('\n', textArea.selectionStart, textArea.selectionEnd, 'end');
+  textArea.selectionStart += '\n';
+  textArea.selectionStart = textArea.selectionEnd;
+  textArea.focus();
 });
 
 dlt.addEventListener('click', () => {
@@ -335,6 +360,40 @@ dlt.addEventListener('click', () => {
   + textArea.value.slice(textArea.selectionStart + 1, textArea.value.length);
   textArea.selectionStart = position;
   textArea.selectionEnd = position;
+  textArea.focus();
+});
+
+arrowRight.addEventListener('click', () => {
+  textArea.selectionStart += 1;
+  textArea.selectionEnd = textArea.selectionStart;
+  textArea.focus();
+});
+
+arrowLeft.addEventListener('click', () => {
+  if (textArea.selectionEnd > 0) {
+    textArea.selectionEnd -= 1;
+    textArea.selectionStart = textArea.selectionEnd;
+  } if (textArea.selectionEnd === 0) {
+    textArea.selectionEnd = 0;
+    textArea.selectionStart = textArea.selectionEnd;
+  }
+  textArea.focus();
+});
+
+arrowUp.addEventListener('click', () => {
+  if (textArea.value.length > itemsInTextareaString) {
+    textArea.selectionEnd -= itemsInTextareaString;
+    textArea.selectionStart = textArea.selectionEnd;
+  }
+  textArea.focus();
+});
+
+arrowDown.addEventListener('click', () => {
+  if (textArea.value.length - textArea.selectionStart >= itemsInTextareaString) {
+    textArea.selectionStart += itemsInTextareaString;
+    textArea.selectionStart = textArea.selectionEnd;
+    textArea.focus();
+  }
 });
 
 const setLocalStorage = () => {
